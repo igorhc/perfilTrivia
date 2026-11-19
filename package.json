@@ -1,0 +1,41 @@
+{
+  "name": "perfil-trivia",
+  "private": true,
+  "license": "MIT",
+  "description": "Jogo de tabuleiro em grupo numa única tela: Perfil + trivia em PT-BR, com tabuleiro gerado aleatoriamente.",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "dexie": "^4.0.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.2",
+    "fake-indexeddb": "^6.0.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "vitest": "^2.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/igorhc/perfilTrivia.git"
+  },
+  "homepage": "https://github.com/igorhc/perfilTrivia#readme",
+  "bugs": {
+    "url": "https://github.com/igorhc/perfilTrivia/issues"
+  },
+  "author": "Igor Coelho"
+}
