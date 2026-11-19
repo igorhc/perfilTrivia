@@ -4,6 +4,10 @@
 
 Não tem dado: **quanto menos dicas você precisar para acertar, mais casas você anda.** Arriscar cedo vale muito. Esperar mais dicas é seguro, mas lento. Essa é a graça do jogo.
 
+### ▶️ [Jogar agora no navegador](https://igorhc.github.io/perfilTrivia/)
+
+Não precisa instalar nada: abra o link no notebook ou na TV e chame o grupo.
+
 ![Tabuleiro gerado aleatoriamente](docs/img/tabuleiro.png)
 
 ## ✨ Destaques
