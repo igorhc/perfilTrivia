@@ -136,10 +136,11 @@ export default function Game({ initial, onExit, onNewGame }: { initial: GameStat
       turn: { ...s.turn, phase: 'card', cardId: c.id, shown: turn.type === 'perfil' ? 1 : 0, revealed: false },
     }));
   };
-  const finishCard = (correct: boolean, picked?: string) => {
+  const finishCard = (correct: boolean, picked?: string, reason?: string) => {
+    if (turn.phase !== 'card') return; // evita finalizar duas vezes
     const steps = turn.type === 'perfil' ? perfilSteps(Math.max(1, turn.shown), correct) : triviaSteps(turn.shown, correct);
     if (correct) sfx.correct(); else sfx.wrong();
-    setTurn({ phase: 'result', outcome: { correct, steps }, picked, revealed: true });
+    setTurn({ phase: 'result', outcome: { correct, steps, reason }, picked, revealed: true });
   };
   const startMove = () => {
     const steps = turn.outcome?.steps ?? 0;
@@ -281,6 +282,7 @@ export default function Game({ initial, onExit, onNewGame }: { initial: GameStat
             <div className={`modal center-text result ${turn.outcome.correct ? 'ok' : 'bad'}`}>
               <h2>{turn.outcome.correct ? '🎉 Acertou!' : '😬 Não foi dessa vez'}</h2>
               {card.kind === 'trivia' && turn.picked && !turn.outcome.correct && <p>Você marcou: <s>{turn.picked}</s></p>}
+              {turn.outcome.reason && <p className="result-reason">{turn.outcome.reason}</p>}
               <p className="answer-big">{card.answer}</p>
               <p className="steps-big">{turn.outcome.steps > 0 ? `Anda ${turn.outcome.steps} ${turn.outcome.steps === 1 ? 'casa' : 'casas'}` : 'Fica onde está'}</p>
               <button className="btn primary big" onClick={startMove} autoFocus>

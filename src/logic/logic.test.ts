@@ -8,7 +8,7 @@ import { drawType, fillBag, type CardType } from './typeBag';
 import { perfilSteps, triviaSteps, perfilTable } from './scoring';
 import { nextTurn, pinOffsets, ranking, resolveMove, type PlayerState } from './game';
 import {
-  buildTriviaHints, eliminatedOptions, isGenericClue, matchesAnswer, mergeCards, parseBankFile, syncWithSeed, validateCard,
+  buildTriviaHints, eliminatedOptions, isGenericClue, multipleChoiceExhausted, remainingOptions, matchesAnswer, mergeCards, parseBankFile, syncWithSeed, validateCard,
   type PerfilCard, type TriviaCard,
 } from './cards';
 
@@ -233,6 +233,22 @@ describe('cartas', () => {
     expect(matchesAnswer('torre eifel', 'Torre Eiffel')).toBe(true);
     expect(matchesAnswer('o rio de janeiro', 'Rio de Janeiro')).toBe(true);
     expect(matchesAnswer('paris', 'Roma')).toBe(false);
+  });
+  it('múltipla: só vale acertar com 2 ou mais alternativas disponíveis', () => {
+    const card: TriviaCard = { ...multi, hints: ['contexto', 'mais contexto', 'Não é Sydney nem Perth.'] };
+    const hints = buildTriviaHints(card, createRng('x'));
+    // sem erros, mesmo com a dica 3 eliminando 2 opções, sobram 2: ainda vale
+    expect(remainingOptions(card, hints, 3, [])).toEqual(['Canberra', 'Melbourne']);
+    expect(multipleChoiceExhausted(card, hints, 3, [])).toBe(false);
+    // errou 2 alternativas: sobram 2 → ainda pode acertar
+    expect(multipleChoiceExhausted(card, hints, 2, ['Sydney', 'Melbourne'])).toBe(false);
+    // errou 3 alternativas: sobra só a certa → acabou, não anda
+    expect(remainingOptions(card, hints, 2, ['Sydney', 'Melbourne', 'Perth'])).toEqual(['Canberra']);
+    expect(multipleChoiceExhausted(card, hints, 2, ['Sydney', 'Melbourne', 'Perth'])).toBe(true);
+    // errou 1 e a dica 3 eliminou as outras 2 → sobra 1 → acabou
+    expect(multipleChoiceExhausted(card, hints, 3, ['Melbourne'])).toBe(true);
+    // aberta nunca se esgota por alternativas
+    expect(multipleChoiceExhausted({ ...card, type: 'aberta', options: undefined }, hints, 3, ['x'])).toBe(false);
   });
   it('completa dicas de trivia e elimina alternativas', () => {
     const hints = buildTriviaHints(multi, createRng('h'));

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { PerfilCard, TriviaCard } from '../logic/cards';
-import { buildTriviaHints, eliminatedOptions } from '../logic/cards';
+import { buildTriviaHints, eliminatedOptions, multipleChoiceExhausted } from '../logic/cards';
 import { createRng } from '../logic/rng';
 import { PERFIL_MAX_CLUES, TRIVIA_MAX_HINTS, perfilSteps, triviaSteps } from '../logic/scoring';
 import { sfx } from '../sound';
@@ -115,8 +115,10 @@ interface TriviaProps {
   wrong: string[];
   onUse: (n: number) => void;
   onWrongOption: (option: string) => void;
-  onResult: (correct: boolean, picked?: string) => void;
+  onResult: (correct: boolean, picked?: string, reason?: string) => void;
 }
+
+export const ONLY_ONE_LEFT = 'Sobrou só uma alternativa: acertar por eliminação não vale casas.';
 
 export function TriviaPanel({ card, used, hintSeed, wrong, onUse, onWrongOption, onResult }: TriviaProps) {
   const hints = useMemo(() => buildTriviaHints(card, createRng(hintSeed)), [card, hintSeed]);
@@ -129,8 +131,18 @@ export function TriviaPanel({ card, used, hintSeed, wrong, onUse, onWrongOption,
     if (o === card.answer) { onResult(true, o); return; }
     // errou a alternativa: ela fica riscada e vem a próxima dica (ou acaba, se não houver mais)
     sfx.wrong();
+    const newWrong = [...wrong, o];
+    const nextUsed = hasNext ? used + 1 : used;
+    // só vale acertar com 2 ou mais alternativas disponíveis; se sobrou 1, a carta acaba sem casas
+    if (multipleChoiceExhausted(card, hints, nextUsed, newWrong)) { onResult(false, o, ONLY_ONE_LEFT); return; }
     if (hasNext) { onWrongOption(o); onUse(used + 1); } else onResult(false, o);
   };
+
+  // também cobre o caso de uma dica revelada depois de um erro deixar só 1 alternativa
+  useEffect(() => {
+    if (multipleChoiceExhausted(card, hints, used, wrong)) onResult(false, wrong[wrong.length - 1], ONLY_ONE_LEFT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [used, wrong.length]);
 
   return (
     <div className="card-panel trivia">

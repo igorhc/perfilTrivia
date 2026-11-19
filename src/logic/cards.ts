@@ -274,6 +274,24 @@ export function buildTriviaHints(card: TriviaCard, rng: Rng): TriviaHint[] {
   return hints;
 }
 
+/**
+ * Alternativas que o jogador ainda pode escolher na múltipla escolha:
+ * tira as eliminadas pelas dicas reveladas e as que ele já errou.
+ */
+export function remainingOptions(card: TriviaCard, hints: TriviaHint[], used: number, wrong: string[]): string[] {
+  if (card.type !== 'multipla' || !card.options) return [];
+  const out = new Set([...eliminatedOptions(card, hints, used), ...wrong]);
+  return card.options.filter((o) => !out.has(o));
+}
+
+/**
+ * Regra: na múltipla escolha só vale acertar enquanto houver 2 ou mais alternativas disponíveis.
+ * Se os erros (somados às eliminações das dicas) deixarem só 1 alternativa, a carta termina sem andar casas.
+ */
+export function multipleChoiceExhausted(card: TriviaCard, hints: TriviaHint[], used: number, wrong: string[]): boolean {
+  return card.type === 'multipla' && wrong.length > 0 && remainingOptions(card, hints, used, wrong).length <= 1;
+}
+
 /** Opções eliminadas pelas dicas já reveladas. Também interpreta "Não é X nem Y." nas dicas de texto. */
 export function eliminatedOptions(card: TriviaCard, hints: TriviaHint[], used: number): string[] {
   if (card.type !== 'multipla' || !card.options) return [];

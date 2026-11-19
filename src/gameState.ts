@@ -16,7 +16,8 @@ export interface TurnState {
   picked?: string;
   /** Trivia de múltipla escolha: alternativas que o jogador já errou nesta carta. */
   wrong?: string[];
-  outcome?: { correct: boolean; steps: number };
+  /** reason: explicação mostrada no resultado (ex.: sobrou só uma alternativa). */
+  outcome?: { correct: boolean; steps: number; reason?: string };
   move?: MoveResult;
   hintSeed: string;
 }
